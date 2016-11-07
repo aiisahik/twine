@@ -1,0 +1,9 @@
+{
+	"port": 8001,
+	"repositories":
+	[{
+		"url": "https://github.com/aiisahik/twine",
+		"path": "/home/django",
+		"deploy": "echo deploying"
+	}]
+}
