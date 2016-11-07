@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# OSX Stuff Blah Blah Blah Blah
+# OSX Stuff Blah Blah Blah Blah Blah
 *.DS_Store
 
 # C extensions
