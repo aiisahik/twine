@@ -54,7 +54,7 @@ class GitAutoDeploy(BaseHTTPRequestHandler):
             paths = self.getMatchingPaths(url)
             for path in paths:
                 self.fetch(path)
-                # self.deploy(path)
+                self.restartServer(path)
 
     def parseRequest(self):
         length = int(self.headers.getheader('content-length'))
@@ -82,6 +82,11 @@ class GitAutoDeploy(BaseHTTPRequestHandler):
             print 'Updating ' + path
         call(['cd "' + path + '" && git fetch origin'], shell=True)
         call(['cd "' + path + '" && git reset --hard origin/master'], shell=True)
+
+    def restartServer(self,path):
+        if(not self.quiet):
+            print "\nRestarting gunicorn"
+        call(['cd "' + path + '" && service gunicorn restart'], shell=True)
 
     def deploy(self, path):
         config = self.getConfig()
