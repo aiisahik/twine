@@ -1,0 +1,13 @@
+{% load staticfiles %}
+<!-- css header --> 
+
+{% if LOCAL_ENV %}
+<!-- raw:css -->
+<link type="text/css" rel="stylesheet" href="{% static 'css/dist/public.css' %}"/>
+<!-- endinject -->
+
+{% else %}
+<!-- minified:css -->
+<link type="text/css" rel="stylesheet" href="{% static 'css/dist/public.css' %}"/>
+<!-- endinject -->
+{% endif %}

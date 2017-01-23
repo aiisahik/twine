@@ -1,0 +1,61 @@
+{% extends 'base/_base.html' %}
+{% load staticfiles %}
+
+
+
+{% block body %}
+{% verbatim %}
+<div ng-app="butternut.public" class="full-height" ng-cloak>
+	
+		<div class="container">
+            <div class="row">
+                <div class="col-sm-2 col-md-3 col-lg-3 hidden-xs"></div>
+                <div class="col-sm-8 col-md-6 col-lg-6" ng-controller="loginController as formView">
+                        <form id="loginForm" name="loginForm" action="" method="post" class="form-horizontal">
+                                <div class="form-group mtb-15 clearfix" ng-class="{ 'has-error': formView.data.form_error.username || (loginForm.username.$invalid && (loginForm.username.$dirty && loginForm.username.$blurred)) }">
+
+                                        <label class="col-sm-12 brand-gray">
+                                            Username or Email
+                                        </label>
+                                        <div class="col-sm-12">
+                                            <input name="username" class="form-control input-lg" ng-model="formView.form_data.username" type="email" maxlength="60" required ng-focus="loginForm.username.$focus = true;" ng-blur="loginForm.username.$focus = false; loginForm.username.$blurred = true" />
+
+                                            <div class="text-danger" for="username" ng-if="loginForm.username.$error.required && (loginForm.username.$dirty && loginForm.username.$blurred)" ng-cloak>
+                                                Please enter your email <i class="fa fa-alert"></i>
+                                            </div>
+
+                                            <div class="text-danger" for="username" ng-if="loginForm.username.$error.email && (loginForm.username.$dirty && loginForm.username.$blurred)" ng-cloak>
+                                                Please enter a valid email address <i class="fa fa-alert"></i>
+                                            </div>
+
+                                            <div class="text-danger" ng-if="formView.data.form_error.username" ng-cloak><span ng-repeat="errormsg in formView.data.form_error.username" ng-bind-html="formView.trust(errormsg)"></span></div>
+                                        </div>
+                                </div>
+
+                                <div class="form-group mtb-15 clearfix" ng-class="{ 'has-error': loginForm.password.$invalid && (loginForm.password.$dirty && loginForm.password.$blurred) }">
+                                        <label class="col-sm-12 brand-gray">
+                                            Password
+                                        </label>
+                                        <div class="col-sm-12">
+                                            <input name="password" class="form-control input-lg" ng-model="formView.form_data.password" type="password" maxlength="60" required ng-focus="loginForm.password.$focus = true;" ng-blur="loginForm.password.$focus = false; loginForm.password.$blurred = true" />
+
+                                            <div class="text-danger pull-right" ng-if="loginForm.password.$error.required && (loginForm.password.$dirty && loginForm.password.$blurred)" ng-cloak>
+                                                Please enter a password
+                                            </div>
+                                        </div>
+                                </div>
+                                <div class="mtb-20 clearfix text-center">
+                                    <button name="submit" class="btn btn-accent btn-block btn-lg mtb-5" type="submit" value="Log In">Log In</button>
+                                    <input type="hidden" name="login_submit"/>
+                                    <br>
+                                    <a href="/account/password_reset/?fromLogin=1">Forgot your password? </a>
+                                </div>
+
+                        </form>
+                </div>
+                <div class="col-sm-2 col-md-3 col-lg-3 hidden-xs"></div>
+            </div>
+        </div>
+</div>
+{% endverbatim %}
+{% endblock %}

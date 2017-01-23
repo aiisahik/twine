@@ -1,0 +1,12 @@
+docker ps -a
+
+138.197.84.148
+
+
+docker run -d -p 80:80 --add-host=localbox:192.168.0.16 -v /Users/Jie/Code/twine/app:/home/docker/code/twine aiisahik/django-uwsgi-nginx
+
+docker exec -ti 8ba0bf283845 bash
+
+docker commit -m "new commit" -a "Jie Zhou" container-id repository/new_image_name
+
+docker run --name twine-postgres -e POSTGRES_PASSWORD=wc5Rbkyrm5 -e POSTGRES_USER=twine -e POSTGRES_DB=twine -p 5432:5432 -d postgres
