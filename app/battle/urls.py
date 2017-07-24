@@ -20,6 +20,7 @@ import views
 
 router = routers.DefaultRouter()
 router.register(r'battle', views.BattleAPIViewSet, base_name='Battle')
+router.register(r'player', views.PlayerAPIViewSet, base_name='Player')
 
 urlpatterns = [
 ]

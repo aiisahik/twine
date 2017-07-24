@@ -1,7 +1,8 @@
 import models
 import names
 from django.contrib.auth.models import User
-from rank.models import Battle, Player
+from battle.models import Battle, Player
+from account.models import Profile
 import random
 import hashlib
 from datetime import datetime
@@ -18,3 +19,10 @@ def generate_picks_for_judge(judge, num=100):
             battle.pick('left')
         else:
             battle.pick('right')
+
+def generate_battles_for_all(num=100):
+    profiles = Profile.objects.all()
+    for profile in profiles:
+        battles = Battle.objects.get_battles(profile, num=num)
+        print "%d battles for: %s %s" % (len(battles), profile.first_name, profile.last_name)
+    print "==== done ===" 

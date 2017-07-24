@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
 
+
 class Profile(models.Model):
 	GENDER_CHOICES = (
         ('M', 'Male'),

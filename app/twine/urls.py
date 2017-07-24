@@ -16,12 +16,14 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework_jwt.views import obtain_jwt_token
+from rest_framework.authtoken.views import obtain_auth_token
 import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^account/', include('account.urls')),
-    url(r'^battle/', include('battle.urls')),
-    url(r'^api-token-auth/', obtain_jwt_token),
-    # url(r'^', views.HomeView.as_view()),
+    url(r'^api/v1/account/', include('account.urls')),
+    url(r'^api/v1/battle/', include('battle.urls')),
+    url(r'^api/v1/token-auth/', obtain_jwt_token),
+    url(r'^api/v1/drf-token-auth/', obtain_auth_token),
+    url(r'^', views.HomeView.as_view()),
 ]

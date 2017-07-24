@@ -72,7 +72,7 @@ class Player(models.Model):
     mu = models.FloatField(null=True, blank=True)
     sigma = models.FloatField(null=True, blank=True)
     elo = models.FloatField(null=True, blank=True)
-    update_date = models.DateTimeField(auto_now=False)
+    update_date = models.DateTimeField(auto_now=False, blank=True)
     trueskill_rank = models.PositiveIntegerField(null=True, blank=True)
     elo_rank = models.PositiveIntegerField(null=True, blank=True)
 
@@ -82,6 +82,19 @@ class Player(models.Model):
         return "{0} {1}: {2} {3} has mu: {4}, sigma: {5}".format(self.judge.first_name, self.judge.last_name, self.target.first_name, self.target.last_name, self.mu, self.sigma)
 
 class BattleManager(models.Manager):
+    def create_battle(self, judge, leftProfile, rightProfile):
+        new_battle = Battle(left=leftProfile, right=rightProfile, judge=judge)
+        new_battle.save()
+        # leftPlayer, leftPlayerCreated = Player.objects.get_or_create(
+        #     judge=judge,
+        #     update_date
+        #     target=leftProfile,
+        # )
+        # rightPlayer, rightPlayerCreated = Player.objects.get_or_create(
+        #     judge=judge,
+        #     target=rightProfile,
+        # )
+        return new_battle
 
     def generate_random_battle(self, judge):
         profile_count = Profile.objects.filter(gender=judge.gender_preference).count()

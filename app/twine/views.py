@@ -3,7 +3,7 @@ from django.views.generic.base import TemplateView, View
 
 
 class HomeView(TemplateView):
-    template_name = 'home.html'
+    template_name = 'index.html'
     def dispatch(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         response = self.render_to_response(context)
