@@ -32,7 +32,7 @@ class BattleAPIViewSet(ModelViewSet):
         if request.GET.get('num', None):
             num_battles = int(request.GET.get('num'))
         if request.user.profile:
-            queryset = models.Battle.objects.get_battles(num=num_battles, judge=request.user.profile)
+            queryset = models.Battle.objects.filter(judge=judge, pick_date__isnull=True)[0:num_battles]
             serializer = serializers.BattleSerializer(queryset, many=True)
             return Response(serializer.data)
         else:

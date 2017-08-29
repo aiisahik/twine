@@ -82,42 +82,10 @@ class Player(models.Model):
         return "{0} {1}: {2} {3} has mu: {4}, sigma: {5}".format(self.judge.first_name, self.judge.last_name, self.target.first_name, self.target.last_name, self.mu, self.sigma)
 
 class BattleManager(models.Manager):
-    def create_battle(self, judge, leftProfile, rightProfile):
+    def create_battle(self, judge, leftProfile, rightProfile, randomizePosition=True):
         new_battle = Battle(left=leftProfile, right=rightProfile, judge=judge)
         new_battle.save()
-        # leftPlayer, leftPlayerCreated = Player.objects.get_or_create(
-        #     judge=judge,
-        #     update_date
-        #     target=leftProfile,
-        # )
-        # rightPlayer, rightPlayerCreated = Player.objects.get_or_create(
-        #     judge=judge,
-        #     target=rightProfile,
-        # )
         return new_battle
-
-    def generate_random_battle(self, judge):
-        profile_count = Profile.objects.filter(gender=judge.gender_preference).count()
-        random_index_1 = randint(0, profile_count - 1)
-        random_index_2 = randint(0, profile_count - 2)
-        leftProfile = Profile.objects.filter(gender=judge.gender_preference)[random_index_1]
-        rightProfile = Profile.objects.filter(gender=judge.gender_preference).exclude(user__id=leftProfile.user_id)[random_index_2]
-        new_battle = Battle(left=leftProfile, right=rightProfile, judge=judge)
-        return new_battle
-
-    def generate_random_battles(self, judge, num):
-        for i in [0] * num:
-            new_battle = self.generate_random_battle(judge=judge)
-            new_battle.save()
-
-    def get_battles(self, judge, num=100):
-        unfought_battles = self.filter(judge=judge, pick_date__isnull=True)
-        unfought_battles_count = unfought_battles.count()
-        if unfought_battles_count < num:
-            self.generate_random_battles(judge, num-unfought_battles_count)
-            return self.filter(judge=judge, pick_date__isnull=True)
-        else:
-            return unfought_battles
 
 class Battle(models.Model):
     judge = models.ForeignKey(Profile, related_name="judges", related_query_name="judge", null=True, blank=True)
@@ -129,6 +97,10 @@ class Battle(models.Model):
     create_date = models.DateTimeField(auto_now=True)
     pick_date = models.DateTimeField(auto_now=False, null=True, blank=True)
     expire_date = models.DateTimeField(auto_now=False, null=True, blank=True)
+
+    # priority determines the order in which unfought battles should be displayed to the judge
+    priority = models.FloatField(null=True, blank=True)
+
     objects = BattleManager()
 
     def __unicode__(self):
