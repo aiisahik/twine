@@ -11,4 +11,4 @@ enable_utc = True
 #CELERY_RESULT_BACKEND = 'django-cache'
 # CELERY_RESULT_BACKEND = 'django-db'
 # CELERY_RESULT_BACKEND = "redis"
-imports = ("battle.tasks", )
+imports = ("battle.tasks", "account.tasks" )

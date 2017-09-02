@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from django.utils import timezone
 from datetime import datetime
 from battle.tasks import create_battles_for_judge_ids
+from tasks import create_preference_matches
 
 MIN_MALE_HEIGHT = 160
 MAX_MALE_HEIGHT = 240
@@ -93,42 +94,53 @@ def generate_random_accounts(count=100, password='twine1234'):
         print generated_profile, created_user
     created_profiles = models.Profile.objects.bulk_create(new_profiles)
     ## traits 
-    new_trait_identities = []
-    new_trait_preferences = []
+    generate_random_traits_for_profiles(new_profiles)
     
-    for created_profile in created_profiles:
-        ## race identity and preferences 
-        num_races = models.Trait.objects.filter(type__name='race').count()
-        num_racial_preferences = random.randint(1,num_races)
-        random_race_ids = random.sample(range(num_races), num_racial_preferences)
-        random_races = models.Trait.objects.filter(id__in=random_race_ids)
-        new_trait_identities.append(
-            models.TraitIdentity(
-                profile=created_profile,
-                strength=random.randint(1,10),
-                trait=random_races.first() # first random trait is profile identity 
-            )
-        )
-
-        for index, random_race in enumerate(random_races):
-            race_preference_level = random.randint(5,10) if index==1 else random.randint(1,10)
-            new_trait_preferences.append(
-                models.TraitPreference(
-                    profile=created_profile,
-                    strength=race_preference_level,
-                    trait=random_race
-                )
-            )
-    created_trait_identities = models.TraitIdentity.objects.bulk_create(new_trait_identities)
-    created_trait_preferences = models.TraitPreference.objects.bulk_create(new_trait_preferences)
-
     created_profile_ids = [profile.user_id for profile in created_profiles]
+    print "kicking off job for creating preference matches for ", created_profile_ids
+    create_preference_matches.apply_async((created_profile_ids,), retry=True, retry_policy={
+        'max_retries': 3,
+        'interval_start': 0,
+        'interval_step': 0.2,
+        'interval_max': 0.2,
+    })
+
     create_battles_for_judge_ids.apply_async((created_profile_ids,), retry=True, retry_policy={
         'max_retries': 3,
         'interval_start': 0,
         'interval_step': 0.2,
         'interval_max': 0.2,
     })
+
+def generate_random_traits_for_profiles(profiles):
+    new_trait_identities = []
+    new_trait_preferences = []
+    for profile in profiles:
+        ## race identity and preferences 
+        num_races = models.Trait.objects.filter(type__name='race').count()
+        num_racial_preferences = random.randint(1,num_races)
+        random_race_ids = random.sample(range(num_races), num_racial_preferences)
+        random_races = models.Trait.objects.filter(id__in=random_race_ids)
+        if random_races.count > 0 and random_races.first():
+            new_trait_identities.append(
+                models.TraitIdentity(
+                    profile=profile,
+                    strength=random.randint(1,10),
+                    trait=random_races.first() # first random trait is profile identity 
+                )
+            )
+            for index, random_race in enumerate(random_races):
+                if random_race:
+                    race_preference_level = random.randint(5,10) if index==1 else random.randint(1,10)
+                    new_trait_preferences.append(
+                        models.TraitPreference(
+                            profile=profile,
+                            strength=race_preference_level,
+                            trait=random_race
+                        )
+                    )
+    created_trait_identities = models.TraitIdentity.objects.bulk_create(new_trait_identities)
+    created_trait_preferences = models.TraitPreference.objects.bulk_create(new_trait_preferences)
 
 
 def populate_race_ethnicity():

@@ -13,7 +13,11 @@ class ProfileManager(models.Manager):
 		min_age_date = date_now - timedelta(days=judge.min_age_preference*365) 
 		max_age_date = date_now - timedelta(days=judge.max_age_preference*365) 
 		age_filter = Q(dob__gte=max_age_date, dob__lte=min_age_date)
-		
+		preferred_traits = [preference.trait_id for preference in TraitPreference.active.filter(profile=judge)]
+		if len(preferred_traits) > 0:
+			trait_preference_filter = Q(trait_identities__trait_id__in=preferred_traits)
+		else: 
+			trait_preference_filter = Q()
 		if judge.gender_preference == "BI":
 			gender_filter = (Q(gender=judge.gender) & Q(gender_preference=judge.gender)) | Q(gender_preference="BI")
 		else:
@@ -21,7 +25,7 @@ class ProfileManager(models.Manager):
 		matches = self.filter(
 			age_filter,
 			gender_filter,
-			
+			trait_preference_filter,
 		).exclude(user_id=judge.user_id)
 		return matches
 
