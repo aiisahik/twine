@@ -10,3 +10,5 @@ docker exec -ti 8ba0bf283845 bash
 docker commit -m "new commit" -a "Jie Zhou" container-id repository/new_image_name
 
 docker run --name twine-postgres -e POSTGRES_PASSWORD=wc5Rbkyrm5 -e POSTGRES_USER=twine -e POSTGRES_DB=twine -p 5432:5432 -d postgres
+
+docker run --name twine-redis -d redis --requirepass wc5Rbkyrm5

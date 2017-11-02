@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField, HStoreField
 from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta, datetime
@@ -22,6 +23,7 @@ class ProfileManager(models.Manager):
 			gender_filter = (Q(gender=judge.gender) & Q(gender_preference=judge.gender)) | Q(gender_preference="BI")
 		else:
 			gender_filter = Q(gender=judge.gender_preference, gender_preference=judge.gender)
+
 		matches = self.filter(
 			age_filter,
 			gender_filter,
@@ -57,6 +59,10 @@ class Profile(models.Model):
 	height = models.PositiveSmallIntegerField(null=True, blank=True) # height in cm
 	min_height_preference = models.PositiveSmallIntegerField(null=True, blank=True)
 	max_height_preference = models.PositiveSmallIntegerField(null=True, blank=True)
+
+	is_bot = models.BooleanField(default=False) ## whether this is a bot 
+	data = HStoreField(null=True, blank=True)
+	json_data = JSONField(null=True, blank=True)
 
 	objects = ProfileManager()
 

@@ -1,17 +1,16 @@
 from django.db import models
+from django.contrib.postgres.fields import JSONField, HStoreField
 from django.db.models.aggregates import Count
 from random import randint
 from collections import defaultdict, OrderedDict
 from account.models import Profile
+from gallery.models import Gallery
+
 from trueskill import Rating, quality_1vs1, rate_1vs1
 import elo
 import datetime
 from django.utils import timezone
 
-POSITION_CHOICES = (
-    ('LEFT', 'LEFT'),
-    ('RIGHT', 'RIGHT')
-)
 
 class PlayerManager(models.Manager):
     def get_ranked_players(self, judge):
@@ -65,6 +64,16 @@ class PlayerManager(models.Manager):
             pairings.append(new_pairing)
             print '(%d, %d) -> %s %s, %s %s -> %d' % (row, column, player1.first_name, player1.last_name, player2.first_name, player2.last_name, combined_mu)
         return pairings
+    
+    def reorder_players_for_judge(self, judge):
+        players_by_trueskill = self.filter(judge=judge).order_by('-mu')
+        for index, player in enumerate(players_by_trueskill):
+            player.trueskill_rank = index
+        players_by_elo = self.filter(judge=judge).order_by('-elo')
+        for index, player in enumerate(players_by_elo):
+            player.trueskill_rank = index
+            player.save()
+        return players_by_trueskill
 
 class Player(models.Model):
     judge = models.ForeignKey(Profile, related_name="player_judges", related_query_name="player_judge")
@@ -93,6 +102,10 @@ class Battle(models.Model):
     right = models.ForeignKey(Profile, related_name="rightProfiles", related_query_name="rightProfile", null=True, blank=True)
     winner = models.ForeignKey(Player, related_name="winners", related_query_name="winner", null=True, blank=True)
     loser = models.ForeignKey(Player, related_name="losers", related_query_name="loser", null=True, blank=True)
+    
+    left_gallery = models.ForeignKey(Gallery, related_name="left_battles", null=True, blank=True)
+    right_gallery = models.ForeignKey(Gallery, related_name="right_battles", null=True, blank=True)
+    data = HStoreField(null=True, blank=True)
 
     create_date = models.DateTimeField(auto_now=True)
     pick_date = models.DateTimeField(auto_now=False, null=True, blank=True)

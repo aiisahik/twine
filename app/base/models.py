@@ -43,3 +43,15 @@ class DateAwareMixin(models.Model):
         if not now:
             now = timezone.now()
         return instances.filter(start_date__lte=now, end_date__gt=now)
+
+    def start(self, **kwargs):
+        self.start_date = kwargs.get('now') or datetime.now()
+        if kwargs.get('commit', False):
+            self.save()
+        return self
+
+    def end(self, **kwargs):
+        self.end_date = kwargs.get('now') or datetime.now()
+        if kwargs.get('commit', False):
+            self.save()
+        return self

@@ -18,7 +18,7 @@ from django.contrib import admin
 from rest_framework import routers
 import views
 
-router = routers.DefaultRouter()
+router = routers.SimpleRouter()
 router.register(r'battle', views.BattleAPIViewSet, base_name='Battle')
 router.register(r'player', views.PlayerAPIViewSet, base_name='Player')
 

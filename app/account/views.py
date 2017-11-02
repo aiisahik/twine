@@ -18,10 +18,10 @@ class AccountView(TemplateView):
 class ProfileAPIViewSet(ModelViewSet):
     queryset = models.Profile.objects.all()
     permission_classes = (IsAuthenticated,)
-    serializer_class = serializers.ProfileSerializer
+    serializer_class = serializers.FullProfileSerializer
 
     def get_queryset(self):
-        return self.queryset.select_related('user')
+        return self.queryset.select_related('user').prefetch_related('trait_identities', 'trait_identities__trait')
 
 
 # Create your views here.

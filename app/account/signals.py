@@ -13,3 +13,4 @@ def generate_battles_for_new_judge(sender, instance, **kwargs):
         'interval_step': 0.2,
         'interval_max': 0.2,
     })
+    

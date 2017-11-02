@@ -5,6 +5,7 @@ import random
 from django.utils.text import slugify
 from django.utils import timezone
 from datetime import datetime
+from celery import chain
 from battle.tasks import create_battles_for_judge_ids
 from tasks import create_preference_matches
 
@@ -88,7 +89,8 @@ def generate_random_accounts(count=100, password='twine1234'):
                                 gender_preference=gender_preference,
                                 height=generated_height,
                                 min_height_preference=min_height_preference,
-                                max_height_preference=max_height_preference
+                                max_height_preference=max_height_preference,
+                                is_bot=True
                             )
         new_profiles.append(generated_profile)
         print generated_profile, created_user
@@ -98,19 +100,52 @@ def generate_random_accounts(count=100, password='twine1234'):
     
     created_profile_ids = [profile.user_id for profile in created_profiles]
     print "kicking off job for creating preference matches for ", created_profile_ids
-    create_preference_matches.apply_async((created_profile_ids,), retry=True, retry_policy={
-        'max_retries': 3,
-        'interval_start': 0,
-        'interval_step': 0.2,
-        'interval_max': 0.2,
-    })
+    # from celery import chain
+    # res = (
+    #     create_preference_matches.s(created_profile_ids), 
+    #     create_battles_for_judge_ids.s(created_profile_ids) 
+    # )
 
-    create_battles_for_judge_ids.apply_async((created_profile_ids,), retry=True, retry_policy={
-        'max_retries': 3,
-        'interval_start': 0,
-        'interval_step': 0.2,
-        'interval_max': 0.2,
-    })
+    # print res
+    # res = (
+    #     create_preference_matches.s((created_profile_ids,)).set(queue='account') | 
+    #     create_battles_for_judge_ids.s((created_profile_ids,)).set(queue='account')
+    # )
+    # print res
+    # res.get()
+    # res.apply_async(
+    #     retry=True,
+    #     countdown=0.1,
+    #     retry_policy={
+    #         'max_retries': 3,
+    #         'interval_start': 0,
+    #         'interval_step': 0.2,
+    #         'interval_max': 0.2,
+    #     }
+    # )
+    res = chain(create_preference_matches.si(created_profile_ids), 
+        create_battles_for_judge_ids.si(created_profile_ids))()
+    return res.get()
+    # res.apply_async(
+    #     retry=True, 
+    #     retry_policy={
+    #         'max_retries': 3,
+    #         'interval_start': 0,
+    #         'interval_step': 0.2,
+    #         'interval_max': 0.2,
+    #     },   
+    # )
+    # create_preference_matches.apply_async((created_profile_ids,), 
+    #     retry=True, 
+    #     retry_policy={
+    #         'max_retries': 3,
+    #         'interval_start': 0,
+    #         'interval_step': 0.2,
+    #         'interval_max': 0.2,
+    #     },   
+    #     link=create_battles_for_judge_ids.si(created_profile_ids)
+    # )
+
 
 def generate_random_traits_for_profiles(profiles):
     new_trait_identities = []

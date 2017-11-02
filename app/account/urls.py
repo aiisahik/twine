@@ -21,6 +21,10 @@ import views
 router = routers.DefaultRouter()
 router.register(r'profile', views.ProfileAPIViewSet)
 
+## GET api/v1/account/profile/<id>/
+    ## should get that specific profile, including all the images
+
+
 urlpatterns = [
   # url('^', views.AccountView.as_view()),
 ]

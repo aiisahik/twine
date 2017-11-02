@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'account',
     'battle',
     'match',
+    'gallery',
 ]
 
 MIDDLEWARE = [
