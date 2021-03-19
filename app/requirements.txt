@@ -6,7 +6,7 @@ celery==4.1.0
 decorator==4.0.10
 Django==1.10.4
 django-filter==1.0.1
-djangorestframework==3.5.3
+djangorestframework==3.11.2
 djangorestframework-jwt==1.11.0
 enum34==1.1.6
 ipython==5.1.0
